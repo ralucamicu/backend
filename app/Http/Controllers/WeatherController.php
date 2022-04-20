@@ -3,41 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApiResponse;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Http\Request;
-use \Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Scalar\String_;
-
 
 class WeatherController extends BaseController 
 {
-    public function getCity($location) {
+    public function getCityFromApi($location) {
         $api_key = "f77221ff9711060bd0cc9778bc441b3b";
-        $city = Http::get("http://api.openweathermap.org/geo/1.0/direct?limit=1&appid=" . $api_key . "&exclude=id&q=". $location);
+        $json = Http::get("http://api.openweathermap.org/geo/1.0/direct?limit=1&appid=" . $api_key . "&exclude=id&q=". $location);
+        $city = json_decode($json,true);
+
         return $city;
 
         //de aici am nevoie de name, lat & lon
     }
 
-    public function getForecast($latitude, $longitude) {
+    public function getForecastFromApi($latitude, $longitude) {
         $api_key = "f77221ff9711060bd0cc9778bc441b3b";
-        $forecast = Http::get("http://api.openweathermap.org/data/2.5/onecall?lat=" . $latitude. "&lon=" . $longitude. "&exclude=id,current,hourly,minutely&units=metric&appid=" . $api_key);
+        $json = Http::get("http://api.openweathermap.org/data/2.5/onecall?lat=" . $latitude. "&lon=" . $longitude. "&exclude=id,current,hourly,minutely&units=metric&appid=" . $api_key);
+        $forecast = json_decode($json,true);
         
         return $forecast;
 
         //de aici doar de daily
     }
 
-                                                                                    //For city
-    public function setCityInDB($location) {
+    
+    //For city
+    public function setCityInDB($location , $data=[]) {
+    
         $response = new ApiResponse;
         
-        $response->result = $this->getCity($location);
+        $response->result = $data;
         $response->type = 'city';
         $response->name = $location;
     
@@ -45,24 +43,29 @@ class WeatherController extends BaseController
     }
 
     public function getCityFromDB($location) {
-        $dbCity = DB::select("select name from api_responses where name = '". $location . "'");
+        $response = ApiResponse::where('type', '=', 'city')->where('name', '=', $location)->first();
 
-        // $lat = DB::('selec result.lat from api_responses')
-        
-        return $dbCity;
+        if($response) {
+            return $response->result;
+        }
+
+        return null;
     }
 
-    public function checkIfCityExists($location) {
+    public function getCity($location) {
         $data = $this->getCityFromDB($location);
 
         if(!$data) {
-            $data = $this->getCity($location);
-            $data->name = $this->setCityInDB($location);
+            $data = $this->getCityFromApi($location);
+            if($data) {
+                $this->setCityInDB($location, $data);
+            }
         }
         return $data;
     }
     
-                                                                                    //For forecast
+    
+    //For forecast
     public function setForecastInDB($location,$lat,$lon) {
         $response = new ApiResponse;
         
@@ -74,17 +77,33 @@ class WeatherController extends BaseController
     }
 
     public function getForecastFromDB($location) {
-        $dbForecast = DB::select("select result from api_responses where type = 'forecast' and name = '" .$location . "'");
+        $response = ApiResponse::where('result')->where('type', '=', 'forecast')->where('name', '=', $location)->first();
 
-        return $dbForecast;
+        if($response) {
+            return $response->result;
+        }
+
+        return null;
     }
-    public function checkIfForecastExists($location) {
-        $data = $this->getCityFromDB($location);
+    public function getForecast($location) {
+        $data = $this->getForecastFromDB($location);
 
         if(!$data) {
-            $data = $this->getCity($location);
-            $data->name = $this->setCityInDB($location);
+
+            $city = $this->getCity($location);
+            if($city) {
+                $data = $this->getForecastFromApi($location);
+                if($data) {
+                    $this->setForecastInDB($location, $data);
+                } else {
+                    return ['success'=>false, 'error-msg'=>'no forecast for this city'];
+                }  
+            }else {
+                return ['success'=>false, 'error-msg'=>'no city found'];
+            }  
+
         }
+
         return $data;
     }
 }

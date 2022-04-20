@@ -16,15 +16,18 @@ use App\Http\Controllers\WeatherController;
 Route::get('/', function () {
     return view('welcome');
 });
-
+// City
 Route::get('/city/{city}', [WeatherController::class, 'getCity']);
-Route::get('/forecast/{latitude}/{longitude}', [WeatherController::class, 'getForecast']);
+
 Route::get('cityFromDB/{cityFromDB}', [WeatherController::class, 'getCityFromDB']);
-Route::get('check/{cityFromDB}', [WeatherController::class, 'checkIfCityExists']);
+Route::get('checkCity/{cityFromDB}', [WeatherController::class, 'checkIfCityExists']);
+
+// Forecast
+Route::get('/forecast/{city}', [WeatherController::class, 'getForecast']);
 Route::get('forecastFromDB/{city}', [WeatherController::class, 'getForecastFromDB']);
+Route::get('checkForecast/{city}/{latitude}/{longitude}', [WeatherController::class, 'checkIfForecastExists']);
 
 
 
-Route::post('save', [WeatherController::class, 'save']);
 Route::post('saveCity/{saveCity}', [WeatherController::class, 'setCityInDB']);
 Route::post('saveForecast/{city}/{latitude}/{longitude}', [WeatherController::class, 'setForecastInDB']);
