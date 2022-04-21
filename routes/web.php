@@ -19,15 +19,16 @@ Route::get('/', function () {
 // City
 Route::get('/city/{city}', [WeatherController::class, 'getCity']);
 
-Route::get('cityFromDB/{cityFromDB}', [WeatherController::class, 'getCityFromDB']);
-Route::get('checkCity/{cityFromDB}', [WeatherController::class, 'checkIfCityExists']);
+Route::get('/apiCity/{city}', [WeatherController::class, 'getCityFromApi']);
+Route::get('/cityFromDB/{cityFromDB}', [WeatherController::class, 'getCityFromDB']);
 
 // Forecast
-Route::get('/forecast/{city}', [WeatherController::class, 'getForecast']);
-Route::get('forecastFromDB/{city}', [WeatherController::class, 'getForecastFromDB']);
-Route::get('checkForecast/{city}/{latitude}/{longitude}', [WeatherController::class, 'checkIfForecastExists']);
+Route::get('/forecast/{city}/{lat}/{lon}', [WeatherController::class, 'getForecast']);
+
+Route::get('/apiForecast/{lat}/{lon}', [WeatherController::class, 'getForecastFromApi']);
+Route::get('/forecastFromDB/{city}', [WeatherController::class, 'getForecastFromDB']);
 
 
 
-Route::post('saveCity/{saveCity}', [WeatherController::class, 'setCityInDB']);
-Route::post('saveForecast/{city}/{latitude}/{longitude}', [WeatherController::class, 'setForecastInDB']);
+Route::post('saveCity/{city}', [WeatherController::class, 'setCityInDB']);
+Route::post('saveForecast/{city}', [WeatherController::class, 'setForecastInDB']);

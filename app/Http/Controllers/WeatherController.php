@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ApiResponse;
+use App\Models\ApiResponseModel;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
@@ -31,25 +31,27 @@ class WeatherController extends BaseController
 
     
     //For city
-    public function setCityInDB($location , $data=[]) {
-    
-        $response = new ApiResponse;
+    public function setCityInDB($location) {
+        $data = $this->getCityFromApi($location);
+        $response = new ApiResponseModel;
         
-        $response->result = $data;
+        $response->result =  $this->getCityFromApi($location);
         $response->type = 'city';
         $response->name = $location;
     
         $response->save();
+
+        return ['success'=>true, 200];
     }
 
     public function getCityFromDB($location) {
-        $response = ApiResponse::where('type', '=', 'city')->where('name', '=', $location)->first();
+        $response = ApiResponseModel::where('type', '=', 'city')->where('name', '=', $location)->first();
 
         if($response) {
             return $response->result;
         }
 
-        return null;
+        return $response;
     }
 
     public function getCity($location) {
@@ -67,17 +69,22 @@ class WeatherController extends BaseController
     
     //For forecast
     public function setForecastInDB($location,$lat,$lon) {
-        $response = new ApiResponse;
+        $data=[];
+        $response = new ApiResponseModel;
         
-        $response->result = $this->getForecast($lat,$lon);
+        $response->result = $data;
         $response->type = 'forecast';
         $response->name = $location;
+
+        if($response->result != $this->getForecastFromApi($lat,$lon)) {
+            $response = ApiResponseModel::where('type', '=', 'forecast')->update('result', '=', $this->getForecastFromApi($lat,$lon));
+        }
     
         $response->save();
     }
 
     public function getForecastFromDB($location) {
-        $response = ApiResponse::where('result')->where('type', '=', 'forecast')->where('name', '=', $location)->first();
+        $response = ApiResponseModel::where('result')->where('type', '=', 'forecast')->where('name', '=', $location)->first();
 
         if($response) {
             return $response->result;
@@ -85,16 +92,16 @@ class WeatherController extends BaseController
 
         return null;
     }
-    public function getForecast($location) {
+    public function getForecast($location,$lat,$lon) {
         $data = $this->getForecastFromDB($location);
 
         if(!$data) {
 
             $city = $this->getCity($location);
             if($city) {
-                $data = $this->getForecastFromApi($location);
+                $data = $this->getForecastFromApi($lat,$lon);
                 if($data) {
-                    $this->setForecastInDB($location, $data);
+                    $this->setForecastInDB($location,$lat,$lon);
                 } else {
                     return ['success'=>false, 'error-msg'=>'no forecast for this city'];
                 }  
@@ -106,4 +113,8 @@ class WeatherController extends BaseController
 
         return $data;
     }
+	/**
+	 */
+	function __construct() {
+	}
 }

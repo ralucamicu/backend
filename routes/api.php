@@ -20,13 +20,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // City
 Route::get('city', 'WeatherController@getCity');
+Route::get('apiCity', 'WeatherController@getCityFromApi');
 Route::get('cityFromDB', 'WeatherController@getCityFromDB');
-Route::get('checkCity/{cityFromDB}', 'WeatherController@checkIfCityExists');
 
 // Forecast
 Route::get('forecast', 'WeatherController@getForecast');
+
+Route::get('apiForecast', 'WeatherController@getForecastFromApi');
 Route::get('forecastFromDB', 'WeatherController@getForecastFromDB');
-Route::get('checkForecast/{cityFromDB}', 'WeatherController@checkIfForecastExists');
 
 
 Route::post('saveCity', 'WeatherController@setCityInDB');
