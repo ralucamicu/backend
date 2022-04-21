@@ -19,16 +19,6 @@ Route::get('/', function () {
 // City
 Route::get('/city/{city}', [WeatherController::class, 'getCity']);
 
-Route::get('/apiCity/{city}', [WeatherController::class, 'getCityFromApi']);
-Route::get('/cityFromDB/{cityFromDB}', [WeatherController::class, 'getCityFromDB']);
-
 // Forecast
 Route::get('/forecast/{city}/{lat}/{lon}', [WeatherController::class, 'getForecast']);
 
-Route::get('/apiForecast/{lat}/{lon}', [WeatherController::class, 'getForecastFromApi']);
-Route::get('/forecastFromDB/{city}', [WeatherController::class, 'getForecastFromDB']);
-
-
-
-Route::post('saveCity/{city}', [WeatherController::class, 'setCityInDB']);
-Route::post('saveForecast/{city}', [WeatherController::class, 'setForecastInDB']);
