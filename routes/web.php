@@ -19,6 +19,10 @@ Route::get('/', function () {
 // City
 Route::get('/city/{city}', [WeatherController::class, 'getCity']);
 
+Route::get('/dbForecast/{city}', [WeatherController::class, 'getForecastFromDB']);
+Route::get('/dbCity/{city}', [WeatherController::class, 'getCityFromDB']);
+// Route::put('/update/{city}', [WeatherController::class, 'updateForecastInDB']);
+
 // Forecast
 Route::get('/forecast/{city}/{lat}/{lon}', [WeatherController::class, 'getForecast']);
 

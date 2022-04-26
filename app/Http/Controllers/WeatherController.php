@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ApiResponseModel;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\DB;
 
 class WeatherController extends BaseController 
 {
@@ -45,7 +44,7 @@ class WeatherController extends BaseController
     }
 
     public function getCityFromDB($location) {
-        $response = ApiResponseModel::where('type', '=', 'city')->where('name', '=', $location)->first();
+        $response = ApiResponseModel::where('type', '=', 'city')->where('name', '=',    $location)->first();
 
         if($response) {
             return $response->result;
@@ -66,29 +65,38 @@ class WeatherController extends BaseController
         return $data;
     }
     
-    
     //For forecast
-    public function setForecastInDB($location,$lat,$lon) {
-        $data=[];
+    public function setForecastInDB($location,$data=[]) {
         $response = new ApiResponseModel;
         
         $response->result = $data;
         $response->type = 'forecast';
         $response->name = $location;
 
-        if($response->result != $this->getForecastFromApi($lat,$lon)) {
-            $response = ApiResponseModel::where('type', '=', 'forecast')->update('result', '=', $this->getForecastFromApi($lat,$lon));
-        }
     
         $response->save();
+        
+        return ['success'=>true, 200];
     }
 
-    public function getForecastFromDB($location) {
-        $response = ApiResponseModel::where('result')->where('type', '=', 'forecast')->where('name', '=', $location)->first();
+    public function updateForecastInDB($location) {
+        $response = ApiResponseModel::where('type', '=', 'forecast')->where('name', '=', $location)->update('result')->first();
 
         if($response) {
             return $response->result;
         }
+
+        return null;
+    }
+
+    public function getForecastFromDB($location) {
+        $response = ApiResponseModel::select('result')->where('type', '=', 'forecast')->where('name', '=', $location)->first();
+
+        if($response) {
+            return $response->result;
+        }
+
+        if($response->result)
 
         return null;
     }
@@ -101,10 +109,10 @@ class WeatherController extends BaseController
             if($city) {
                 $data = $this->getForecastFromApi($lat,$lon);
                 if($data) {
-                    $this->setForecastInDB($location,$lat,$lon);
+                    $this->setForecastInDB($location,$data);
                 } else {
                     return ['success'=>false, 'error-msg'=>'no forecast for this city'];
-                }  
+                }
             }else {
                 return ['success'=>false, 'error-msg'=>'no city found'];
             }  
