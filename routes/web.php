@@ -20,8 +20,18 @@ Route::get('/', function () {
 Route::get('/city/{city}', [WeatherController::class, 'getCity']);
 Route::get('/dbCity/{city}', [WeatherController::class, 'getCityFromDB']);  
 
+
+
+Route::post('/saveCity/{city}', [WeatherController::class, 'setCityInDB']);
+
+
+
 // Forecast
-Route::get('/forecast/{city}/{lat}/{lon}', [WeatherController::class, 'getForecast']);
+Route::get('/forecast/{city}', [WeatherController::class, 'getForecast']);
 Route::get('/dbForecast/{city}', [WeatherController::class, 'getForecastFromDB']);
+
+
+
+Route::post('/save/{city}', [WeatherController::class, 'setForecastInDB']);
 
 

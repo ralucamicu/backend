@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\ApiResponseModel;
 use Carbon\Carbon;
+use DateTimeZone;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Http;
-use DateTimeZone;
 
 class WeatherController extends BaseController
 
@@ -15,6 +15,8 @@ class WeatherController extends BaseController
     protected $timeout_forecast = 3600;
     /**
      */
+
+    // protected $api_key = env('FORECAST_API_KEY');
     function __construct()
     {
     }
@@ -59,12 +61,11 @@ class WeatherController extends BaseController
 
     public function getCityFromDB($location)
     {
-        $now = now()->toDateTimeString();
         $response = ApiResponseModel::where('type', '=', 'city')->where('name', '=', $location)->first();
 
         if ($response) {
-            if ($response->updated_at + Carbon::addSeconds($this->timeout_city) >= Carbon::now(new DateTimeZone('Europe/Bucharest'))) {
-            }
+            // if (Carbon::now($response->updated_at) + Carbon::add($this->timeout_city,'seconds') >= Carbon::now()) {
+            // }
             return $response->result;
         }
 
@@ -88,9 +89,8 @@ class WeatherController extends BaseController
 
 
     //For forecast
-    public function setForecastInDB($location)
+    public function setForecastInDB($location, $data = [])
     {
-        $data = [];
         $response = new ApiResponseModel;
 
         $response->result = $data;
@@ -124,11 +124,13 @@ class WeatherController extends BaseController
 
         $forecast = $this->getForecastFromDB($location);
         if (!$forecast) {
-            $lat = $city['lat'];
-            $lon = $city['lon'];
+            // $lat = $city["lat"];
+            // $lon = $city["lon"];
+            $lat = $city[0]['lat'];
+            $lon = $city[0]['lon'];
             $forecast = $this->getForecastFromApi($lat, $lon);
             if ($forecast) {
-                $this->setForecastInDB($location);
+                $this->setForecastInDB($location,$forecast);
             }
             else {
                 return ['success' => false, 'error-msg' => 'no forecast for this city'];
