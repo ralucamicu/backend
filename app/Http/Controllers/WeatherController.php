@@ -16,7 +16,7 @@ class WeatherController extends BaseController
     /**
      */
 
-    // protected $api_key = env('FORECAST_API_KEY');
+
     function __construct()
     {
     }
@@ -25,8 +25,7 @@ class WeatherController extends BaseController
     //Api calls
     public function getCityFromApi($location)
     {
-        $api_key = "f77221ff9711060bd0cc9778bc441b3b";
-        $json = Http::get("http://api.openweathermap.org/geo/1.0/direct?limit=1&appid=" . $api_key . "&exclude=id&q=" . $location);
+        $json = Http::get("http://api.openweathermap.org/geo/1.0/direct?limit=1&appid=" . env('FORECAST_API_KEY') . "&exclude=id&q=" . $location);
         $city = json_decode($json, true);
 
         return $city;
@@ -34,8 +33,8 @@ class WeatherController extends BaseController
 
     public function getForecastFromApi($latitude, $longitude)
     {
-        $api_key = "f77221ff9711060bd0cc9778bc441b3b";
-        $json = Http::get("http://api.openweathermap.org/data/2.5/onecall?lat=" . $latitude . "&lon=" . $longitude . "&exclude=id,current,hourly,minutely&units=metric&appid=" . $api_key);
+        $json = Http::get("http://api.openweathermap.org/data/2.5/onecall?lat=" . $latitude . "&lon=" . $longitude . "&exclude=id,current,hourly,minutely&units=metric&appid=" 
+        . env('FORECAST_API_KEY'));
         $forecast = json_decode($json, true);
 
         return $forecast;
@@ -64,12 +63,10 @@ class WeatherController extends BaseController
         $response = ApiResponseModel::where('type', '=', 'city')->where('name', '=', $location)->first();
 
         if ($response) {
-            // if (Carbon::now($response->updated_at) + Carbon::add($this->timeout_city,'seconds') >= Carbon::now()) {
-            // }
-            return $response->result;
+            if (Carbon::create($response->updated_at,'UTC')->addSeconds($this->timeout_city) >= Carbon::now('UTC')) {
+                return $response->result;
+            }
         }
-
-
         return null;
     }
 
@@ -108,9 +105,9 @@ class WeatherController extends BaseController
         $response = ApiResponseModel::where('type', '=', 'forecast')->where('name', '=', $location)->first();
 
         if ($response) {
-            // if ($response->updated_at + Carbon::addSeconds($this->timeout_forecast) >= Carbon::now(new DateTimeZone('Europe/Bucharest'))) {
-            // }
-            return $response->result;
+            if (Carbon::create($response->updated_at,'UTC')->addSeconds($this->timeout_forecast) >= Carbon::now('UTC')) {
+                return $response->result;
+            }
         }
 
         return null;
