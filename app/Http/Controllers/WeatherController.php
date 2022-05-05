@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\Http;
 
 class WeatherController extends BaseController
 
-{    protected $timeout_city = 1800;
+{
+    protected $timeout_city = 86400;
 
-    protected $timeout_forecast = 3600;
+    protected $timeout_forecast = 7200;
     /**
      */
 
@@ -32,8 +33,8 @@ class WeatherController extends BaseController
 
     public function getForecastFromApi($latitude, $longitude)
     {
-        $json = Http::get("http://api.openweathermap.org/data/2.5/onecall?lat=" . $latitude . "&lon=" . $longitude . "&exclude=id,current,hourly,minutely&units=metric&appid=" 
-        . $api_key = env('FORECAST_API_KEY'));
+        $json = Http::get("http://api.openweathermap.org/data/2.5/onecall?lat=" . $latitude . "&lon=" . $longitude . "&exclude=id,current,hourly,minutely&units=metric&appid="
+            . $api_key = env('FORECAST_API_KEY'));
         $forecast = json_decode($json, true);
 
         return $forecast;
@@ -62,7 +63,7 @@ class WeatherController extends BaseController
         $response = ApiResponseModel::where('type', '=', 'city')->where('name', '=', $location)->first();
 
         if ($response) {
-            if (Carbon::create($response->updated_at,'UTC')->addSeconds($this->timeout_city) >= Carbon::now('UTC')) {
+            if (Carbon::create($response->updated_at, 'UTC')->addSeconds($this->timeout_city)->greaterThan(Carbon::now('UTC'))) {
                 return $response->result;
             }
         }
@@ -103,7 +104,7 @@ class WeatherController extends BaseController
         $response = ApiResponseModel::where('type', '=', 'forecast')->where('name', '=', $location)->first();
 
         if ($response) {
-            if (Carbon::create($response->updated_at,'UTC')->addSeconds($this->timeout_forecast) >= Carbon::now('UTC')) {
+            if (Carbon::create($response->updated_at, 'UTC')->addSeconds($this->timeout_forecast)->greaterThan(Carbon::now('UTC'))) {
                 return $response->result;
             }
         }
@@ -123,7 +124,7 @@ class WeatherController extends BaseController
             $lon = $city[0]['lon'];
             $forecast = $this->getForecastFromApi($lat, $lon);
             if ($forecast) {
-                $this->setForecastInDB($location,$forecast);
+                $this->setForecastInDB($location, $forecast);
             }
             else {
                 return ['success' => false, 'error-msg' => 'no forecast for this city'];
