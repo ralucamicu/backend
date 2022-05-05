@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ApiResponseModel;
 use Carbon\Carbon;
-use DateTimeZone;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Http;
 
@@ -25,7 +24,7 @@ class WeatherController extends BaseController
     //Api calls
     public function getCityFromApi($location)
     {
-        $json = Http::get("http://api.openweathermap.org/geo/1.0/direct?limit=1&appid=" . env('FORECAST_API_KEY') . "&exclude=id&q=" . $location);
+        $json = Http::get("http://api.openweathermap.org/geo/1.0/direct?limit=1&appid=" . $api_key = env('FORECAST_API_KEY') . "&exclude=id&q=" . $location);
         $city = json_decode($json, true);
 
         return $city;
@@ -34,7 +33,7 @@ class WeatherController extends BaseController
     public function getForecastFromApi($latitude, $longitude)
     {
         $json = Http::get("http://api.openweathermap.org/data/2.5/onecall?lat=" . $latitude . "&lon=" . $longitude . "&exclude=id,current,hourly,minutely&units=metric&appid=" 
-        . env('FORECAST_API_KEY'));
+        . $api_key = env('FORECAST_API_KEY'));
         $forecast = json_decode($json, true);
 
         return $forecast;
@@ -101,7 +100,6 @@ class WeatherController extends BaseController
 
     public function getForecastFromDB($location)
     {
-        $response = new ApiResponseModel;
         $response = ApiResponseModel::where('type', '=', 'forecast')->where('name', '=', $location)->first();
 
         if ($response) {
@@ -121,8 +119,6 @@ class WeatherController extends BaseController
 
         $forecast = $this->getForecastFromDB($location);
         if (!$forecast) {
-            // $lat = $city["lat"];
-            // $lon = $city["lon"];
             $lat = $city[0]['lat'];
             $lon = $city[0]['lon'];
             $forecast = $this->getForecastFromApi($lat, $lon);

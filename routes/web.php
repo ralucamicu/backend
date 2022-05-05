@@ -17,11 +17,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 // City
-Route::get('/city/{city}', [WeatherController::class, 'getCity']);
+Route::get('/city/{city}', [WeatherController::class, 'getCity'])->middleware('cors');
 // Route::get('/dbCity/{city}', [WeatherController::class, 'getCityFromDB']);  
 
 
 
 // Forecast
-Route::get('/forecast/{city}', [WeatherController::class, 'getForecast']);
-Route::get('/dbForecast/{city}', [WeatherController::class, 'getForecastFromDB']);
+Route::get('/forecast/{city}', [WeatherController::class, 'getForecast'])->middleware('cors');
+Route::get('/dbForecast/{city}', [WeatherController::class, 'getForecastFromDB'])->middleware('cors');

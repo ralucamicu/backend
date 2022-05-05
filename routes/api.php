@@ -19,15 +19,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // City
-Route::get('city', 'WeatherController@getCity');
-Route::get('apiCity', 'WeatherController@getCityFromApi');
-Route::get('cityFromDB', 'WeatherController@getCityFromDB');
+Route::get('city', 'WeatherController@getCity')->middleware('cors');
+Route::get('apiCity', 'WeatherController@getCityFromApi')->middleware('cors');
+Route::get('cityFromDB', 'WeatherController@getCityFromDB')->middleware('cors');
 
 // Forecast
-Route::get('forecast', 'WeatherController@getForecast');
+Route::get('forecast', 'WeatherController@getForecast')->middleware('cors');
 
-Route::get('apiForecast', 'WeatherController@getForecastFromApi');
-Route::get('forecastFromDB', 'WeatherController@getForecastFromDB');
+Route::get('apiForecast', 'WeatherController@getForecastFromApi')->middleware('cors');
+Route::get('forecastFromDB', 'WeatherController@getForecastFromDB')->middleware('cors');
 
 
 Route::post('saveCity', 'WeatherController@setCityInDB');
