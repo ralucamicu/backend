@@ -21,7 +21,6 @@ class WeatherController extends BaseController
     {
     }
 
-
     //Api calls
     public function getCityFromApi($location)
     {
