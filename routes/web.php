@@ -24,4 +24,4 @@ Route::get('/city/{city}', [WeatherController::class, 'getCity']);
 
 // Forecast
 Route::get('/forecast/{city}', [WeatherController::class, 'getForecast']);
-Route::get('/dbForecast/{city}', [WeatherController::class, 'getForecastFromDB']);
+// Route::get('/dbForecast/{city}', [WeatherController::class, 'getForecastFromDB']);

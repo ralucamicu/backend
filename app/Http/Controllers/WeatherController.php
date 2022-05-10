@@ -66,7 +66,14 @@ class WeatherController extends BaseController
                 return $response->result;
             }
         }
+        $this->deleteOldCityFromDB($location);
         return null;
+    }
+
+    public function deleteOldCityFromDB($location)
+    {
+        $response = ApiResponseModel::where('type', '=', 'city')->where('name', '=', $location)->first();
+        return $response->delete();
     }
 
     public function getCity($location)
@@ -101,15 +108,22 @@ class WeatherController extends BaseController
     public function getForecastFromDB($location)
     {
         $response = ApiResponseModel::where('type', '=', 'forecast')->where('name', '=', $location)->first();
-
         if ($response) {
             if (Carbon::create($response->updated_at, 'UTC')->addSeconds($this->timeout_forecast)->greaterThan(Carbon::now('UTC'))) {
                 return $response->result;
             }
         }
-
+        $this->deleteOldForecastFromDB($location);
         return null;
     }
+
+    public function deleteOldForecastFromDB($location)
+    {
+        $response = ApiResponseModel::where('type', '=', 'forecast')->where('name', '=', $location)->first();
+        return $response->delete();
+    }
+
+
     public function getForecast($location)
     {
         $city = $this->getCity($location);
