@@ -44,7 +44,7 @@ class WeatherController extends BaseController
 
 
     //For city
-    public function setCityInDB($location, $data = [])
+    public function setCityInDB($location, $data = []) //data = [] ii json-ul care se intoarce dupa un call de la api(asta la orasele care nu-s stocate inca in baza de date)
     {
         $response = new ApiResponseModel;
 
@@ -65,8 +65,11 @@ class WeatherController extends BaseController
             if (Carbon::create($response->updated_at, 'UTC')->addSeconds($this->timeout_city)->greaterThan(Carbon::now('UTC'))) {
                 return $response->result;
             }
+            if($response != null)
+            {
+                $this->deleteOldCityFromDB($location);
+            }
         }
-        $this->deleteOldCityFromDB($location);
         return null;
     }
 
@@ -112,8 +115,11 @@ class WeatherController extends BaseController
             if (Carbon::create($response->updated_at, 'UTC')->addSeconds($this->timeout_forecast)->greaterThan(Carbon::now('UTC'))) {
                 return $response->result;
             }
+            if($response != null)
+            {
+                $this->deleteOldForecastFromDB($location);
+            }
         }
-        $this->deleteOldForecastFromDB($location);
         return null;
     }
 
@@ -133,7 +139,7 @@ class WeatherController extends BaseController
 
         $forecast = $this->getForecastFromDB($location);
         if (!$forecast) {
-            $lat = $city[0]['lat'];
+            $lat = $city[0]['lat']; //asa citesc si imi aleg eu de ce am nevoie dintr-un json response in backend dintr-un api call
             $lon = $city[0]['lon'];
             $forecast = $this->getForecastFromApi($lat, $lon);
             if ($forecast) {
