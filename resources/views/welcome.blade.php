@@ -1,6 +1,13 @@
+<?php
+use Illuminate\Support\Facades\Route;
+?>
+
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); 
+use Illuminate\Support\Facades\Route;
+
+?>">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
