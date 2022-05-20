@@ -45,6 +45,7 @@ class WeatherController extends BaseController
 
     //For city
     public function setCityInDB($location, $data = []) //data = [] ii json-ul care se intoarce dupa un call de la api(asta la orasele care nu-s stocate inca in baza de date)
+
     {
         $response = new ApiResponseModel;
 
@@ -65,8 +66,7 @@ class WeatherController extends BaseController
             if (Carbon::create($response->updated_at, 'UTC')->addSeconds($this->timeout_city)->greaterThan(Carbon::now('UTC'))) {
                 return $response->result;
             }
-            if($response != null)
-            {
+            if ($response != null) {
                 $this->deleteOldCityFromDB($location);
             }
         }
@@ -115,8 +115,7 @@ class WeatherController extends BaseController
             if (Carbon::create($response->updated_at, 'UTC')->addSeconds($this->timeout_forecast)->greaterThan(Carbon::now('UTC'))) {
                 return $response->result;
             }
-            if($response != null)
-            {
+            if ($response != null) {
                 $this->deleteOldForecastFromDB($location);
             }
         }
